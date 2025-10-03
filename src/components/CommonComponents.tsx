@@ -1,6 +1,10 @@
 "use client";
 
-import React, { useContext, ButtonHTMLAttributes, VideoHTMLAttributes } from "react";
+import React, {
+  useContext,
+  ButtonHTMLAttributes,
+  VideoHTMLAttributes,
+} from "react";
 import { LoadingContext } from "../utils/LoadingContext";
 import Skeleton from "./skeleton";
 import Image, { ImageProps } from "next/image";
@@ -11,11 +15,12 @@ interface CustomButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   height?: number | string;
 }
 
-interface CustomImageProps extends Omit<ImageProps, "src" | "alt" | "width" | "height"> {
+interface CustomImageProps
+  extends Omit<ImageProps, "src" | "alt" | "width" | "height"> {
   src: string;
   alt: string;
-  width?: string; 
-  height?: string;
+  width?: number | string;
+  height?: number | string;
   className?: string;
 }
 
@@ -40,27 +45,52 @@ export default function CustomButton({
   const { loading } = useContext(LoadingContext);
 
   if (loading) {
-    return <Skeleton height={height} width={width} style={{ margin: "8px 0" }} />;
+    return (
+      <div style={{ margin: "8px 0" }}>
+        <Skeleton height={height} width={width} />
+      </div>
+    );
   }
 
-  return <button {...props}>{children}</button>;
+  return (
+    <button {...props} style={{ width, height }}>
+      {children}
+    </button>
+  );
 }
 
 // NAMED EXPORT: CustomImage
-export function CustomImage({ src, alt, width, height, className, ...rest }: CustomImageProps) {
+export function CustomImage({
+  src,
+  alt,
+  width = 300,
+  height = 200,
+  className,
+  ...rest
+}: CustomImageProps) {
   const { loading } = useContext(LoadingContext);
 
   if (loading) {
     return (
-      <Skeleton
-        height={height || "200px"}
-        width={width || "100%"}
-        style={{ margin: "8px 0" }}
-      />
+      <div style={{ margin: "8px 0" }}>
+        <Skeleton
+          height={height}
+          width={width}
+        />
+      </div>
     );
   }
 
-  return <Image src={src} alt={alt} width={width || 300} height={height || 200} className={className} {...rest} />;
+  return (
+    <Image
+      src={src}
+      alt={alt}
+      width={typeof width === "number" ? width : parseInt(width)}
+      height={typeof height === "number" ? height : parseInt(height)}
+      className={className}
+      {...rest}
+    />
+  );
 }
 
 // NAMED EXPORT: CustomVideo
@@ -73,10 +103,14 @@ export function CustomVideo({
   const { loading } = useContext(LoadingContext);
 
   if (loading) {
-    return <Skeleton height={height} width={width} style={{ margin: "8px 0" }} />;
+    return (
+      <div style={{ margin: "8px 0" }}>
+        <Skeleton height={height} width={width} />
+      </div>
+    );
   }
 
-  return <video {...props} className={className} />;
+  return <video {...props} className={className} style={{ width, height }} />;
 }
 
 // NAMED EXPORT: Paragraph
@@ -87,12 +121,12 @@ export function Paragraph({ children, lines = 3 }: ParagraphProps) {
     return (
       <div>
         {Array.from({ length: lines }).map((_, i) => (
-          <Skeleton
-            key={i}
-            height="20px"
-            width={`${90 - i * 10}%`}
-            style={{ marginBottom: "8px" }}
-          />
+          <div key={i} style={{ marginBottom: "8px" }}>
+            <Skeleton
+              height="20px"
+              width={`${90 - i * 10}%`}
+            />
+          </div>
         ))}
       </div>
     );
